@@ -1,16 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const gravatar = require('gravatar');
-const user = require('../../models/User');
 const bcrypt = require('bcryptjs');
+const User = require('../../models/User');
 
+
+//sanity check
 router.get ('/test', (req, res) => res.json({msg: "Users Works"})
 );
 
-router.post('/register',(req, res)=>{
+//register
+router.post('/register', (req, res) => {
 User.findOne({email: req.body.email})
     .then(user => {
-        if(user) {
+        if (user) {
             return res.status(400).json({email:'Email Already exists'})
         } else {
             const avatar = gravatar.url(req.body.email, {
@@ -22,14 +25,15 @@ User.findOne({email: req.body.email})
                 name: req.body.name,
                 email: req.body.email,
                 avatar,
-                password: req.body.pass
-
+                password: req.body.password
             });
-            bcrypt.genSalt(10, (err,salt) => {
+
+            bcrypt.genSalt(10, (err, salt) => {
               bcrypt.hash(newUser.password, salt, (err, hash) => {
                if (err) throw err;
                newUser.password = hash;
-               newUser.save()
+               newUser
+                   .save()
                    .then(user => res.json(user))
                    .catch(err => console.log (err));
               })
