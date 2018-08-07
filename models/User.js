@@ -18,7 +18,7 @@ name: {
     },
     avatar: {
         type:String,
-        required: true
+
     },
     date: {
         type:Date,
