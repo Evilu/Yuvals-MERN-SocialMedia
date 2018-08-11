@@ -5,12 +5,13 @@ const bcrypt = require('bcryptjs');
 const User = require('../../models/User');
 const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
+const passport = require('passport')
 
-//sanity check
+//Sanity check
 router.get('/test', (req, res) => res.json({msg: "Users Works"})
 );
 
-//register
+//Register
 router.post('/register', (req, res) => {
     User.findOne({email: req.body.email})
         .then(user => {
@@ -18,9 +19,9 @@ router.post('/register', (req, res) => {
                 return res.status(400).json({email: 'Email Already exists'})
             } else {
                 const avatar = gravatar.url(req.body.email, {
-                    s: '200', // avatar size
-                    r: 'pg', //avatar rating
-                    d: 'mm' // default
+                    s: '200', // Avatar size
+                    r: 'pg', // Avatar rating
+                    d: 'mm' // Default
                 });
                 const newUser = new User({
                     name: req.body.name,
@@ -47,14 +48,14 @@ router.post('/login', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    //find user by he's email
+    //Find user by he's email
     User.findOne({email})
         .then(user => {
-            // check for user
+            // Check for user
             if (!user) {
                 return res.status(404).json({email: 'user not found'});
             }
-            // validate password
+            // Validate password
             bcrypt.compare(password, user.password)
                 .then(isMatch => {
                     if (isMatch) {  //User matched
@@ -63,7 +64,8 @@ router.post('/login', (req, res) => {
                             name: user.name,
                             avatar: user.avatar
                         };
-                        // sign Token
+
+                        // Sign Token
                         jwt.sign(payload,
                             keys.secretOrKey,
                             {expiresIn: 3600},
@@ -81,5 +83,12 @@ router.post('/login', (req, res) => {
         });
 });
 
+router.get('/current', passport.authenticate('jwt',{session:false}),(req,res) => {
+res.json({
+    id: req.user.id ,
+    name: req.user.name,
+    email: req.user.email
+})
+});
 
 module.exports = router;
