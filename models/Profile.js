@@ -41,7 +41,7 @@ const ProfileSchema = new Schema({
     githubusername: {
         type: String
     },
-    experince: [
+    experience: [
         {
             title: {
                 type: String,
@@ -121,6 +121,7 @@ const ProfileSchema = new Schema({
             default:Date.now
         }
     },
+
 
 
 
